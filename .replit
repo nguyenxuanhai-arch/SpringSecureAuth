@@ -1,0 +1,38 @@
+modules = ["java"]
+
+[nix]
+channel = "stable-24_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Spring Boot Server"
+
+[[workflows.workflow]]
+name = "Spring Boot Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./mvnw spring-boot:run -Dserver.port=5000"
+waitForPort = 5000
+
+[deployment]
+run = ["sh", "-c", "./mvnw spring-boot:run -Dserver.port=5000"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80

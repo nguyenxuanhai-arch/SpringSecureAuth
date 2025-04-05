@@ -1,0 +1,16 @@
+/home/runner/workspace/src/main/java/com/auth/app/controller/UserController.java
+/home/runner/workspace/src/main/java/com/auth/app/service/JwtService.java
+/home/runner/workspace/src/main/java/com/auth/app/dto/UserRegistrationDto.java
+/home/runner/workspace/src/main/java/com/auth/app/config/JwtTokenUtil.java
+/home/runner/workspace/src/main/java/com/auth/app/dto/LoginDto.java
+/home/runner/workspace/src/main/java/com/auth/app/filter/JwtAuthenticationFilter.java
+/home/runner/workspace/src/main/java/com/auth/app/AuthApplication.java
+/home/runner/workspace/src/main/java/com/auth/app/model/UserRole.java
+/home/runner/workspace/src/main/java/com/auth/app/model/User.java
+/home/runner/workspace/src/main/java/com/auth/app/dto/UserDto.java
+/home/runner/workspace/src/main/java/com/auth/app/repository/UserRepository.java
+/home/runner/workspace/src/main/java/com/auth/app/config/SecurityConfig.java
+/home/runner/workspace/src/main/java/com/auth/app/service/impl/UserServiceImpl.java
+/home/runner/workspace/src/main/java/com/auth/app/service/impl/JwtServiceImpl.java
+/home/runner/workspace/src/main/java/com/auth/app/controller/AuthController.java
+/home/runner/workspace/src/main/java/com/auth/app/service/UserService.java

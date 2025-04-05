@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>JWT Authentication App</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+    <div th:replace="fragments/header :: header"></div>
+
+    <div class="container mt-5">
+        <div class="jumbotron text-center">
+            <h1 class="display-4">Welcome to JWT Authentication App</h1>
+            <p class="lead">This application demonstrates JWT token-based authentication in Spring Boot.</p>
+            <hr class="my-4">
+            <p>Login or register to access the secure parts of the application.</p>
+            <div class="d-flex justify-content-center">
+                <a th:href="@{/auth/login}" class="btn btn-primary btn-lg mx-2">Login</a>
+                <a th:href="@{/auth/register}" class="btn btn-success btn-lg mx-2">Register</a>
+            </div>
+        </div>
+        
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">JWT Authentication</h5>
+                        <p class="card-text">Secure authentication using JWT tokens stored in HTTP-only cookies.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Spring Boot & Thymeleaf</h5>
+                        <p class="card-text">Modern web application built with Spring Boot and Thymeleaf templating.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Data Persistence</h5>
+                        <p class="card-text">Robust data storage with Spring Data JPA and MySQL database.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="fragments/footer :: footer"></div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>
