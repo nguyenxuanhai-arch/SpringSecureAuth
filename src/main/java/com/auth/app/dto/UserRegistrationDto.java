@@ -6,21 +6,21 @@ import javax.validation.constraints.Size;
 
 public class UserRegistrationDto {
 
-    @NotEmpty(message = "First name cannot be empty")
+    @NotEmpty(message = "First name is required")
     private String firstName;
 
-    @NotEmpty(message = "Last name cannot be empty")
+    @NotEmpty(message = "Last name is required")
     private String lastName;
 
-    @NotEmpty(message = "Email cannot be empty")
+    @NotEmpty(message = "Email is required")
     @Email(message = "Please provide a valid email address")
     private String email;
 
-    @NotEmpty(message = "Password cannot be empty")
+    @NotEmpty(message = "Password is required")
     @Size(min = 6, message = "Password must be at least 6 characters long")
     private String password;
 
-    @NotEmpty(message = "Please confirm your password")
+    @NotEmpty(message = "Confirm password is required")
     private String confirmPassword;
 
     public UserRegistrationDto() {

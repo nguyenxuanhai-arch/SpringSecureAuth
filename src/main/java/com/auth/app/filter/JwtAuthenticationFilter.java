@@ -1,12 +1,12 @@
 package com.auth.app.filter;
 
-import com.auth.app.service.JwtService;
+import com.auth.app.config.JwtTokenUtil;
+import com.auth.app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -20,55 +20,56 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
+    private final JwtTokenUtil jwtTokenUtil;
+    private final UserService userService;
 
     @Autowired
-    public JwtAuthenticationFilter(JwtService jwtService, @Lazy UserDetailsService userDetailsService) {
-        this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
+    public JwtAuthenticationFilter(JwtTokenUtil jwtTokenUtil, @Lazy UserService userService) {
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.userService = userService;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        
+
         try {
-            String token = jwtService.getTokenFromCookie(request);
+            final String authorizationHeader = request.getHeader("Authorization");
             
-            if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                // Log token found
-                System.out.println("JWT token found in cookie");
+            String username = null;
+            String jwt = null;
+
+            // Check if Authorization header has Bearer token
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                jwt = authorizationHeader.substring(7);
+                username = jwtTokenUtil.getUsernameFromToken(jwt);
                 
-                String username = jwtService.extractUsername(token);
-                
-                if (username != null) {
-                    System.out.println("Username extracted from token: " + username);
+                // For debugging
+                System.out.println("JWT from Authorization header: " + jwt);
+                System.out.println("Username from token: " + username);
+            }
+
+            // Once we get the token, validate it and load user
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userService.loadUserByUsername(username);
+
+                // If token is valid, configure Spring Security to manually set authentication
+                if (jwtTokenUtil.validateToken(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
                     
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                    
-                    if (jwtService.validateToken(token, userDetails)) {
-                        System.out.println("Token validated successfully for user: " + username);
-                        
-                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities());
-                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    } else {
-                        System.out.println("Token validation failed for user: " + username);
-                    }
-                } else {
-                    System.out.println("Could not extract username from token");
+                    // For debugging
+                    System.out.println("User authenticated: " + username);
                 }
-            } else if (token == null) {
-                System.out.println("No JWT token found in cookie");
             }
         } catch (Exception e) {
-            System.out.println("Error in JWT authentication: " + e.getMessage());
+            // Log the exception but continue processing the request
+            System.out.println("Error validating JWT token: " + e.getMessage());
             e.printStackTrace();
-            logger.error("Cannot set user authentication", e);
         }
-        
-        filterChain.doFilter(request, response);
+
+        chain.doFilter(request, response);
     }
 }

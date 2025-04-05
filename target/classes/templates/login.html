@@ -17,8 +17,8 @@
                         <h2 class="text-center">Login</h2>
                     </div>
                     <div class="card-body">
-                        <div th:if="${param.error}" class="alert alert-danger">
-                            <p th:text="${error}">Invalid username or password</p>
+                        <div id="errorAlert" class="alert alert-danger d-none">
+                            <p id="errorMessage">Invalid username or password</p>
                         </div>
                         
                         <div th:if="${param.logout}" class="alert alert-success">
@@ -29,15 +29,15 @@
                             <p>Registration successful. Please log in.</p>
                         </div>
                         
-                        <form th:action="@{/auth/login-submit}" method="post" th:object="${loginDto}">
+                        <form id="loginForm">
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" th:field="*{email}" id="email" required>
+                                <input type="email" class="form-control" name="email" id="email" required>
                             </div>
                             
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" th:field="*{password}" id="password" required>
+                                <input type="password" class="form-control" name="password" id="password" required>
                             </div>
                             
                             <div class="d-grid gap-2">

@@ -1,20 +1,27 @@
 package com.auth.app.dto;
 
 public class UserDto {
-    private Long id;
+    private String email;
     private String firstName;
     private String lastName;
-    private String email;
+    private String role;
 
     public UserDto() {
     }
 
-    public Long getId() {
-        return id;
+    public UserDto(String email, String firstName, String lastName, String role) {
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.role = role;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getFirstName() {
@@ -33,15 +40,11 @@ public class UserDto {
         this.lastName = lastName;
     }
 
-    public String getEmail() {
-        return email;
+    public String getRole() {
+        return role;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getFullName() {
-        return firstName + " " + lastName;
+    public void setRole(String role) {
+        this.role = role;
     }
 }

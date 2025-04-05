@@ -1,42 +1,81 @@
-// Validate password match on registration form
+// Function to handle the login form submission
 document.addEventListener('DOMContentLoaded', function() {
-    const registerForm = document.querySelector('form[action="/auth/register"]');
+    const loginForm = document.getElementById('loginForm');
     
-    if (registerForm) {
-        registerForm.addEventListener('submit', function(e) {
-            const password = document.getElementById('password');
-            const confirmPassword = document.getElementById('confirmPassword');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            if (password.value !== confirmPassword.value) {
-                e.preventDefault();
-                alert('Passwords do not match!');
-            }
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Build the request data
+            const loginData = {
+                email: email,
+                password: password
+            };
+            
+            // Send login request
+            fetch('/auth/login-submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(loginData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.token) {
+                    // Save the token to localStorage
+                    localStorage.setItem('jwt_token', data.token);
+                    localStorage.setItem('user_email', data.email);
+                    
+                    // Redirect to profile page
+                    window.location.href = '/profile';
+                } else {
+                    // Show error message
+                    document.getElementById('errorMessage').textContent = data.error || 'Login failed';
+                    document.getElementById('errorAlert').classList.remove('d-none');
+                }
+            })
+            .catch(error => {
+                console.error('Login error:', error);
+                document.getElementById('errorMessage').textContent = 'An error occurred during login';
+                document.getElementById('errorAlert').classList.remove('d-none');
+            });
         });
     }
     
-    // Set active nav link
-    const currentLocation = window.location.pathname;
-    const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+    // Check if user is logged in (has JWT token)
+    const jwtToken = localStorage.getItem('jwt_token');
     
-    navLinks.forEach(link => {
-        if (link.getAttribute('href') === currentLocation) {
-            link.classList.add('active');
+    // Add JWT token to all fetch requests
+    const originalFetch = window.fetch;
+    window.fetch = function(url, options = {}) {
+        // Only add Authorization header if we have a token
+        if (jwtToken) {
+            options.headers = options.headers || {};
+            // Don't override if Authorization is already set
+            if (!options.headers.Authorization && !options.headers.authorization) {
+                options.headers.Authorization = `Bearer ${jwtToken}`;
+            }
         }
-    });
+        
+        return originalFetch(url, options);
+    };
     
-    // Auto-hide alerts after 5 seconds
-    const alerts = document.querySelectorAll('.alert');
-    
-    if (alerts.length > 0) {
-        setTimeout(function() {
-            alerts.forEach(alert => {
-                alert.style.opacity = '0';
-                alert.style.transition = 'opacity 1s';
-                
-                setTimeout(function() {
-                    alert.style.display = 'none';
-                }, 1000);
-            });
-        }, 5000);
+    // Add logout functionality
+    const logoutButton = document.getElementById('logoutButton');
+    if (logoutButton) {
+        logoutButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Clear token from localStorage
+            localStorage.removeItem('jwt_token');
+            localStorage.removeItem('user_email');
+            
+            // Redirect to login page
+            window.location.href = '/auth/login?logout=true';
+        });
     }
 });

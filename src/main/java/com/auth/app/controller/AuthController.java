@@ -6,6 +6,7 @@ import com.auth.app.dto.UserRegistrationDto;
 import com.auth.app.service.JwtService;
 import com.auth.app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/auth")
@@ -49,8 +52,8 @@ public class AuthController {
     }
 
     @PostMapping("/login-submit")
-    public String processLogin(@ModelAttribute("loginDto") LoginDto loginDto, BindingResult result, 
-                              HttpServletResponse response, Model model) {
+    @ResponseBody
+    public ResponseEntity<?> processLogin(@RequestBody LoginDto loginDto) {
         try {
             // Add debug logging
             System.out.println("Attempting to authenticate user with email: " + loginDto.getEmail());
@@ -64,16 +67,22 @@ public class AuthController {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             String token = jwtService.generateToken(userDetails);
             
-            jwtService.setTokenInCookie(response, token);
+            // Return JWT token
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("email", userDetails.getUsername());
             
-            return "redirect:/profile";
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             // Add specific error logging
             System.out.println("Authentication failed: " + e.getMessage());
             e.printStackTrace();
             
-            model.addAttribute("error", "Invalid email or password. Error: " + e.getMessage());
-            return "login";
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", "Invalid email or password");
+            response.put("message", e.getMessage());
+            
+            return ResponseEntity.badRequest().body(response);
         }
     }
 
@@ -100,9 +109,15 @@ public class AuthController {
     }
 
     @GetMapping("/logout")
-    public String logout(HttpServletResponse response) {
+    public String logout() {
         SecurityContextHolder.clearContext();
-        jwtService.clearTokenCookie(response);
         return "redirect:/auth/login?logout=true";
+    }
+    
+    // REST API for login
+    @PostMapping("/api/login")
+    @ResponseBody
+    public ResponseEntity<?> apiLogin(@RequestBody LoginDto loginDto) {
+        return processLogin(loginDto);
     }
 }
