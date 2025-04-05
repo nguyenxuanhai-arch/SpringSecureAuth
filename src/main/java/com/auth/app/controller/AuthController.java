@@ -52,6 +52,9 @@ public class AuthController {
     public String processLogin(@ModelAttribute("loginDto") LoginDto loginDto, BindingResult result, 
                               HttpServletResponse response, Model model) {
         try {
+            // Add debug logging
+            System.out.println("Attempting to authenticate user with email: " + loginDto.getEmail());
+            
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
             );
@@ -65,7 +68,11 @@ public class AuthController {
             
             return "redirect:/profile";
         } catch (Exception e) {
-            model.addAttribute("error", "Invalid email or password.");
+            // Add specific error logging
+            System.out.println("Authentication failed: " + e.getMessage());
+            e.printStackTrace();
+            
+            model.addAttribute("error", "Invalid email or password. Error: " + e.getMessage());
             return "login";
         }
     }

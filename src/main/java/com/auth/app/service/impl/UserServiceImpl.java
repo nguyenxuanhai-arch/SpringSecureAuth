@@ -33,6 +33,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User save(UserRegistrationDto registrationDto) {
+        // Debug log
+        System.out.println("Registering new user with email: " + registrationDto.getEmail());
+        
         User user = new User(
                 registrationDto.getFirstName(),
                 registrationDto.getLastName(),
@@ -46,10 +49,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        // Debug log
+        System.out.println("Loading user by email: " + email);
+        
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new UsernameNotFoundException("Invalid username or password.");
+            System.out.println("User not found with email: " + email);
+            throw new UsernameNotFoundException("Invalid username or password. User not found with email: " + email);
         }
+        
+        System.out.println("User found: " + user.getEmail() + ", Role: " + user.getRole());
+        
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),

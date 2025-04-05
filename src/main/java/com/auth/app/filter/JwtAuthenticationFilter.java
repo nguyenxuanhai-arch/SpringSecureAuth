@@ -37,20 +37,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = jwtService.getTokenFromCookie(request);
             
             if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                // Log token found
+                System.out.println("JWT token found in cookie");
+                
                 String username = jwtService.extractUsername(token);
                 
                 if (username != null) {
+                    System.out.println("Username extracted from token: " + username);
+                    
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                     
                     if (jwtService.validateToken(token, userDetails)) {
+                        System.out.println("Token validated successfully for user: " + username);
+                        
                         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                                 userDetails, null, userDetails.getAuthorities());
                         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authentication);
+                    } else {
+                        System.out.println("Token validation failed for user: " + username);
                     }
+                } else {
+                    System.out.println("Could not extract username from token");
                 }
+            } else if (token == null) {
+                System.out.println("No JWT token found in cookie");
             }
         } catch (Exception e) {
+            System.out.println("Error in JWT authentication: " + e.getMessage());
+            e.printStackTrace();
             logger.error("Cannot set user authentication", e);
         }
         
